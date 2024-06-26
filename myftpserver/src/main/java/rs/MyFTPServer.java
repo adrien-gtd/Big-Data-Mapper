@@ -28,10 +28,9 @@ import org.apache.log4j.PropertyConfigurator;
 
 public class MyFTPServer {
 
-    public static void main(String[] args) {
+    public static FtpServer createServer(int port) {
         PropertyConfigurator.configure(MyFTPServer.class.getResource("/log4J.properties"));
         FtpServerFactory serverFactory = new FtpServerFactory();
-        int port = 5002; // Replace 3456 with the desired port number
 
         ListenerFactory listenerFactory = new ListenerFactory();
         listenerFactory.setPort(port);
@@ -115,5 +114,6 @@ public class MyFTPServer {
         } catch (FtpException e) {
             e.printStackTrace();
         }
+        return server;
     }
 }

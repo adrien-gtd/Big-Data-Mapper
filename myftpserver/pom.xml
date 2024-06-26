@@ -47,7 +47,7 @@
             <configuration>
                 <archive>
                     <manifest>
-                        <mainClass>rs.MyFTPServer</mainClass>
+                        <mainClass>rs.Main</mainClass>
                     </manifest>
                 </archive>
                 <descriptorRefs>
