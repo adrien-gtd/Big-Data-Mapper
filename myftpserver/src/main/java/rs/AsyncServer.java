@@ -9,104 +9,127 @@ import java.nio.channels.AsynchronousServerSocketChannel;
 import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
 import java.nio.charset.StandardCharsets;
-import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
+import java.util.concurrent.CountDownLatch;
 
-public class AsyncServer {
+public class AsyncServer implements Runnable {
 
     private AsynchronousServerSocketChannel serverSocket;
     private Main main;
-    private Map<Integer, AsynchronousSocketChannel> clients = new ConcurrentHashMap<>();
-    private int clientIdCounter = 1;
+    private AsynchronousSocketChannel clientSocket;
+    private boolean clientConnected = false;
+    private CountDownLatch latch;
+    private int port;
 
-    public AsyncServer(int port, Main main) {
+    public AsyncServer(int port, Main main, CountDownLatch latch) {
+        this.port = port;
+        this.main = main;
+        this.latch = latch;
+    }
+
+    @Override
+    public void run() {
         try {
             serverSocket = AsynchronousServerSocketChannel.open().bind(new InetSocketAddress(port));
         } catch (IOException e) {
             e.printStackTrace();
         }
-        this.main = main;
         start();
     }
 
     public void start() {
         System.out.println("Server is waiting to accept user...");
-        CompletableFuture<Void> future = new CompletableFuture<>();
 
         serverSocket.accept(null, new CompletionHandler<AsynchronousSocketChannel, Void>() {
             @Override
             public void completed(AsynchronousSocketChannel socketChannel, Void attachment) {
-                serverSocket.accept(null, this); // accept next connection
-                int clientId = clientIdCounter++;
-                clients.put(clientId, socketChannel);
-                handleClient(socketChannel, clientId);
+                if (clientConnected) {
+                    System.out.println("Client connection attempt rejected: another client is already connected.");
+                    try {
+                        socketChannel.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    return;
+                }
+
+                clientConnected = true;
+                clientSocket = socketChannel;
+                System.out.println("Accept a client!");
+                latch.countDown();  // Signal that the client has connected
+                handleClient(socketChannel);
             }
 
             @Override
             public void failed(Throwable exc, Void attachment) {
-                future.completeExceptionally(exc);
+                exc.printStackTrace();
             }
         });
-
-        try {
-            future.get(); // wait until server stops
-        } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
-        }
     }
 
-    private void handleClient(AsynchronousSocketChannel socketChannel, int clientId) {
-        try {
-            System.out.println("Accept a client!");
-
-            ByteBuffer buffer = ByteBuffer.allocate(1024);
-            StringBuilder messageBuilder = new StringBuilder();
-
-            while (socketChannel.read(buffer).get() != -1) {
+    private void handleClient(AsynchronousSocketChannel socketChannel) {
+        ByteBuffer buffer = ByteBuffer.allocate(1024);
+        socketChannel.read(buffer, buffer, new CompletionHandler<Integer, ByteBuffer>() {
+            @Override
+            public void completed(Integer result, ByteBuffer buffer) {
+                if (result == -1) {
+                    try {
+                        socketChannel.close();
+                        clientConnected = false; // Allow new client connection
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    return;
+                }
                 buffer.flip();
                 CharBuffer charBuffer = StandardCharsets.UTF_8.decode(buffer);
-                messageBuilder.append(charBuffer);
-
-                String message = messageBuilder.toString().trim();
-                System.out.println("Received message: " + message);
-
-                // Process the received message
-                onReceive(socketChannel, message);
-
+                String message = charBuffer.toString().trim();
                 buffer.clear();
-                messageBuilder.setLength(0);
+
+                try {
+                    onReceive(socketChannel, message);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                socketChannel.read(buffer, buffer, this); // Read next message
             }
-        } catch (InterruptedException | ExecutionException | IOException e) {
-            if (!(e.getCause() instanceof AsynchronousCloseException)) {
-                e.printStackTrace();
+
+            @Override
+            public void failed(Throwable exc, ByteBuffer buffer) {
+                if (!(exc instanceof AsynchronousCloseException)) {
+                    exc.printStackTrace();
+                }
+                try {
+                    socketChannel.close();
+                    clientConnected = false; // Allow new client connection
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
-        } finally {
-            try {
-                socketChannel.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+        });
     }
 
     private void onReceive(AsynchronousSocketChannel socketChannel, String message) throws IOException {
-        ByteBuffer buffer = StandardCharsets.UTF_8.encode(">> " + message + "\n");
-        socketChannel.write(buffer);
-        buffer.clear();
-        main.receivedMessage(message);
-        sendMessageToClient(1, "OK");
+        main.receivedRequest(message);
+        System.out.println("Received message: " + message);
     }
 
-    public void sendMessageToClient(int clientId, String message) {
-        AsynchronousSocketChannel clientChannel = clients.get(clientId);
-        if (clientChannel != null) {
+    public void sendMessageToClient(String message) {
+        if (clientSocket != null && clientSocket.isOpen()) {
             ByteBuffer buffer = StandardCharsets.UTF_8.encode("Server: " + message + "\n");
-            clientChannel.write(buffer);
-            buffer.clear();
+            clientSocket.write(buffer, buffer, new CompletionHandler<Integer, ByteBuffer>() {
+                @Override
+                public void completed(Integer result, ByteBuffer buffer) {
+                    // Message sent
+                }
+
+                @Override
+                public void failed(Throwable exc, ByteBuffer buffer) {
+                    exc.printStackTrace();
+                }
+            });
         } else {
-            System.out.println("Client with ID " + clientId + " not found.");
+            System.out.println("No client is connected.");
         }
     }
 }

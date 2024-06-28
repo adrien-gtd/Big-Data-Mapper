@@ -105,7 +105,6 @@ public class MyFTPServer {
         FtpServer server = serverFactory.createServer();
 
         // start the server
-
         try {
             server.start();
             System.out.println("FTP Server started on port " + port);

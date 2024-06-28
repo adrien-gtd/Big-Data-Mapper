@@ -1,1 +1,4 @@
 *.class
+
+myftpserver/target/
+myftpclient/target/*
