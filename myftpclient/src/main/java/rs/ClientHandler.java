@@ -14,6 +14,8 @@ public class ClientHandler implements Runnable {
     private boolean running = true;
     private Map<Socket, BufferedWriter> writers = new HashMap<>();
     private CountDownLatch latch;
+    private CountDownLatch freezeMain = new CountDownLatch(1);
+    private boolean mappingDone = false;
 
     public ClientHandler(ServerConnection serverConnection, CountDownLatch latch) {
         this.serverConnection = serverConnection;
@@ -37,7 +39,7 @@ public class ClientHandler implements Runnable {
 
             String line;
             while (running && (line = reader.readLine()) != null) {
-                handleRequest(line);
+                handleRequest(line, socket);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -46,10 +48,24 @@ public class ClientHandler implements Runnable {
         }
     }
 
-    private void handleRequest(String request) {
+    private void handleRequest(String request, Socket socket) {
         System.out.println("Received message: " + request);
-        // Handle the request here
+        if (request.equals("File received")) {
+            freezeMain.countDown();
+        }
+        else if (request.equals("Shuffle done")) {
+            if (mappingDone == true)
+                freezeMain.countDown();
+            else
+                throw new RuntimeException("Mapping not done yet");
+        }
+        else {
+            System.out.println("Unknown request: " + request);
+        }
     }
+
+    
+
 
     public void sendMessageToAll(String message) {
         try {
@@ -108,5 +124,17 @@ public class ClientHandler implements Runnable {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public void setFreezeMain(CountDownLatch freezeMain) {
+        this.freezeMain = freezeMain;
+    }
+
+    public CountDownLatch getFreezeMain() {
+        return freezeMain;
+    }
+
+    public void setMappingDone(boolean mappingDone) {
+        this.mappingDone = mappingDone;
     }
 }

@@ -28,7 +28,7 @@ import org.apache.log4j.PropertyConfigurator;
 
 public class MyFTPServer {
 
-    public static FtpServer createServer(int port) {
+    public static FtpServer createServer(int port, Main main, String ftpUsername, String ftpPassword) {
         PropertyConfigurator.configure(MyFTPServer.class.getResource("/log4J.properties"));
         FtpServerFactory serverFactory = new FtpServerFactory();
 
@@ -58,8 +58,8 @@ public class MyFTPServer {
         UserManager userManager = userManagerFactory.createUserManager();
         // Create a user
         BaseUser user = new BaseUser();
-        user.setName("aguittard-22"); // Replace "username" with the desired username
-        user.setPassword("tata"); // Replace "password" with the desired password
+        user.setName(ftpUsername); // Replace "username" with the desired username
+        user.setPassword(ftpPassword); // Replace "password" with the desired password
         String username = user.getName();
         String tmpDir = System.getProperty("java.io.tmpdir");
         Path path = Paths.get(tmpDir, username);
@@ -95,13 +95,18 @@ public class MyFTPServer {
             public FtpletResult onUploadEnd(FtpSession session, FtpRequest request) throws FtpException, IOException {
                 // Check the uploaded file name and trigger the action if it matches
                 String fileName = request.getArgument();
-                if (fileName.equals("input.txt")) { // Replace with the desired file name
-                    System.out.println("File with desired name uploaded: " + fileName);
-                    // Trigger your desired action here
+                if (fileName.equals("input.txt")) {
+                    System.out.println("Input file uploaded: " + fileName);
+                    main.receivedInputFile();
+                }
+                if (fileName.equals("nodes.txt")) {
+                    System.out.println("Nodes file uploaded: " + fileName);
+                    main.initTaskHandler();
                 }
                 return FtpletResult.DEFAULT;
             }
         });
+        serverFactory.setFtplets(ftplets);
         FtpServer server = serverFactory.createServer();
 
         // start the server

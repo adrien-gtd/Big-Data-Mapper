@@ -132,6 +132,9 @@ public class Splitter {
                 ftpClient.enterLocalPassiveMode();
                 ftpClient.setFileType(FTP.BINARY_FILE_TYPE);
 
+                if (ftpClient.listFiles("input.txt").length > 0) {
+                    ftpClient.deleteFile("input.txt");
+                }
 
                 InputStream inputStream = new FileInputStream(new File(splitFileName));
                 ftpClient.storeFile("input.txt", inputStream);

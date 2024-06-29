@@ -111,12 +111,11 @@ public class AsyncServer implements Runnable {
 
     private void onReceive(AsynchronousSocketChannel socketChannel, String message) throws IOException {
         main.receivedRequest(message);
-        System.out.println("Received message: " + message);
     }
 
     public void sendMessageToClient(String message) {
         if (clientSocket != null && clientSocket.isOpen()) {
-            ByteBuffer buffer = StandardCharsets.UTF_8.encode("Server: " + message + "\n");
+            ByteBuffer buffer = StandardCharsets.UTF_8.encode(message + "\n");
             clientSocket.write(buffer, buffer, new CompletionHandler<Integer, ByteBuffer>() {
                 @Override
                 public void completed(Integer result, ByteBuffer buffer) {

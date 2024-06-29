@@ -25,9 +25,6 @@ public class Master {
             e.printStackTrace();
         }
 
-        // Now it's safe to send messages
-        clientHandler.sendMessageToAll("Hello to all servers");
-
         System.out.println("All servers have been initialized");
 
         System.out.println("Servers:");
@@ -35,12 +32,52 @@ public class Master {
             System.out.println("Server: " + server);
         }
 
+        clientHandler.setFreezeMain(new CountDownLatch(serverConnection.getServers().size()));
+
+
+
         Splitter splitter = new Splitter("../source_file/source.txt", "../splitted_files/", serverConnection.getServers(), ftpPort, username, password);
         splitter.splitFile();
         splitter.distributeFiles();
 
-        System.out.println("All files have been distributed");
+        System.out.println("All files have been distributed, waiting for all servers to map");
 
-        while (true);
+        try {
+            clientHandler.getFreezeMain().await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        System.out.println("All servers finished mapping, starting the shuffle phase");
+        clientHandler.setMappingDone(true);
+
+        clientHandler.sendMessageToAll("Start shuffle");
+
+        System.out.println("Shuffle phase started, waiting for all servers to finish");
+        clientHandler.setFreezeMain(new CountDownLatch(serverConnection.getServers().size()));
+
+        try {
+            clientHandler.getFreezeMain().await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        System.out.println("All servers finished shuffling, starting the reduce phase");
+
+        clientHandler.sendMessageToAll("Start reduce");
+
+        System.out.println("Reduce phase started, waiting for all servers to finish");
+
+        clientHandler.setFreezeMain(new CountDownLatch(serverConnection.getServers().size()));
+
+        try {
+            clientHandler.getFreezeMain().await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        System.out.println("All servers finished reducing, starting the merge phase");
+
+        clientHandler.sendMessageToAll("Start merge");
     }
 }
