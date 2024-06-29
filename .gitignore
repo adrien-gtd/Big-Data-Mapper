@@ -1,6 +1,0 @@
-*.class
-
-myftpserver/target/
-myftpclient/target/*
-
-.vscode/
