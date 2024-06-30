@@ -18,7 +18,6 @@ public class ClientHandler implements Runnable {
     private Map<Socket, BufferedWriter> writers = new HashMap<>();
     private CountDownLatch latch;
     private CountDownLatch freezeMain = new CountDownLatch(1);
-    private boolean mappingDone = false;
     private ArrayList<Pair<Integer, Integer>> ranges = new ArrayList<>();
 
     public ClientHandler(ServerConnection serverConnection, CountDownLatch latch) {
@@ -57,10 +56,7 @@ public class ClientHandler implements Runnable {
         if (request.equals("File received")) {
             freezeMain.countDown();
         } else if (request.equals("Shuffle done")) {
-            if (mappingDone == true)
-                freezeMain.countDown();
-            else
-                throw new RuntimeException("Mapping not done yet");
+            freezeMain.countDown();
         } else if (request.startsWith("Reduce done")) {
             Pattern pattern = Pattern.compile("Reduce done: min = (\\d+), max = (\\d+)");
             Matcher matcher = pattern.matcher(request);
@@ -73,6 +69,10 @@ public class ClientHandler implements Runnable {
             } else {
                 throw new RuntimeException("Wrong message received, connot extract min and max values: " + request);
             }
+            freezeMain.countDown();
+        } else if (request.equals("Merge done")) {
+            freezeMain.countDown();
+        } else if (request.equals("Sort done")) {
             freezeMain.countDown();
         } else {
             System.out.println("Unknown request: " + request);
@@ -144,10 +144,6 @@ public class ClientHandler implements Runnable {
 
     public CountDownLatch getFreezeMain() {
         return freezeMain;
-    }
-
-    public void setMappingDone(boolean mappingDone) {
-        this.mappingDone = mappingDone;
     }
 
     public ArrayList<Pair<Integer, Integer>> getRanges() {

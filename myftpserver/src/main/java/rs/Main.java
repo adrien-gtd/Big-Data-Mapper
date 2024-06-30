@@ -5,10 +5,13 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
+import org.apache.ftpserver.FtpServer;
+
 public class Main {
     private int ftpPort = 5002;
     private int socketPort = 5003;
     private AsyncServer socketServer;
+    private FtpServer ftpServer;
     private String ftpUsername = "aguittard-22";
     private String ftpPassword = "tata";
     private TaskHandler taskHandler;
@@ -16,7 +19,7 @@ public class Main {
     private Map<String, Integer> reduceResult;
 
     public void start() {
-        MyFTPServer.createServer(ftpPort, this, ftpUsername, ftpPassword);
+        ftpServer = MyFTPServer.createServer(ftpPort, this, ftpUsername, ftpPassword);
         CountDownLatch latch = new CountDownLatch(1);
         socketServer = new AsyncServer(socketPort, this, latch);
         Thread serverThread = new Thread(socketServer);
@@ -84,5 +87,19 @@ public class Main {
     public void startMerge () {
         System.out.println("Global min/max received, starting reduce phase...");
         taskHandler.startMergePhase(socketServer.getGlobalMinMax(), reduceResult);
+        System.out.println("Merge done, waiting to start merging phase...");
+        socketServer.sendMessageToClient("Merge done");
+    }
+
+    public void startSort() {
+        taskHandler.startSortPhase();
+        System.out.println("Sort done, waiting answer from client to shutdown...");
+        socketServer.sendMessageToClient("Sort done");
+    }
+
+    public void stop() {
+        System.out.println("End of the process");
+        ftpServer.stop();
+        socketServer.stop();
     }
 }

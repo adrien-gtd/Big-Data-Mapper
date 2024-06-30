@@ -3,11 +3,11 @@
 logFile="logs.txt"
 # List of hosts file that should contain each host in a separate line
 computers=$(cat nodes.txt | xargs -I {} echo {})
-# Password for the hosts  
+# Password for the hosts 
 password="PASSWORD"
 # Login username
 login="aguittard-22"
-# SSH options to skip host key checking  
+# SSH options to skip host key checking
 sshopts="-o StrictHostKeyChecking=no"
 
 # Remote folder where files will be transferred

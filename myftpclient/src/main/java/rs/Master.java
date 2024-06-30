@@ -50,7 +50,6 @@ public class Master {
         }
 
         System.out.println("All servers finished mapping, starting the shuffle phase");
-        clientHandler.setMappingDone(true);
 
         clientHandler.sendMessageToAll("Start shuffle");
 
@@ -81,8 +80,38 @@ public class Master {
 
         Pair<Integer, Integer> maxRange = getGlobalMinMax(clientHandler.getRanges());
 
-        System.out.println("Global min = " + maxRange.getKey() + ", global max = " + maxRange.getValue());
         clientHandler.sendMessageToAll("Start merge, maxRange = " + maxRange.getKey() + " " + maxRange.getValue());
+
+        System.out.println("Merge phase started, waiting for all servers to finish");
+
+        clientHandler.setFreezeMain(new CountDownLatch(serverConnection.getServers().size()));
+
+        try {
+            clientHandler.getFreezeMain().await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        System.out.println("All servers finished merging, starting the sorting phase");
+
+        clientHandler.sendMessageToAll("Start sort");
+
+        System.out.println("Sort phase started, waiting for all servers to finish");
+
+        clientHandler.setFreezeMain(new CountDownLatch(serverConnection.getServers().size()));
+
+        try {
+            clientHandler.getFreezeMain().await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        System.out.println("All servers finished sorting, end of the program");
+
+        clientHandler.sendMessageToAll("End");
+        clientHandler.stop();
+
+        System.exit(0);
     }
 
     private static Pair<Integer, Integer> getGlobalMinMax(List<Pair<Integer, Integer>> ranges) {

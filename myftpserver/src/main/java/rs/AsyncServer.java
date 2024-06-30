@@ -58,7 +58,7 @@ public class AsyncServer implements Runnable {
                 clientConnected = true;
                 clientSocket = socketChannel;
                 System.out.println("Accepted a client!");
-                latch.countDown();  // Signal that the client has connected
+                latch.countDown(); // Signal that the client has connected
                 handleClient(socketChannel);
             }
 
@@ -114,7 +114,7 @@ public class AsyncServer implements Runnable {
 
     private void onReceive(AsynchronousSocketChannel socketChannel, String message) throws IOException {
         System.out.println("Request received: " + message);
-        if (message.equals("Start shuffle")) 
+        if (message.equals("Start shuffle"))
             main.startShuffle();
         else if (message.equals("Start reduce"))
             main.startReduce();
@@ -129,6 +129,11 @@ public class AsyncServer implements Runnable {
             } else {
                 throw new RuntimeException("Wrong message received, connot extract min and max values: " + message);
             }
+        } else if (message.equals("Start sort"))
+            main.startSort();
+        else if (message.equals("End")) {
+            socketChannel.close();
+            main.stop();
         } else {
             System.out.println("Unknown request: " + message);
         }
@@ -155,5 +160,13 @@ public class AsyncServer implements Runnable {
 
     public Pair<Integer, Integer> getGlobalMinMax() {
         return globalMinMax;
+    }
+
+    public void stop() {
+        try {
+            serverSocket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
