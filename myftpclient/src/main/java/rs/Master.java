@@ -1,10 +1,14 @@
 package rs;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 public class Master {
-    
+
     public static void main(String[] args) {
         int ftpPort = 5002;
         int socketPort = 5003;
@@ -12,6 +16,18 @@ public class Master {
         String password = "tata";
         long synchronizationTime = 0;
         long computationTime = 0;
+        String sourceFile;
+        String mesureOutput;
+
+        if (args.length == 1)
+            sourceFile = args[0];
+        if (args.length == 2) {
+            sourceFile = args[0];
+            mesureOutput = args[1];
+        } else {
+            sourceFile = "../source_file/source.txt";
+            mesureOutput = "data.csv";
+        }
 
         ServerConnection serverConnection = new ServerConnection(ftpPort, socketPort, username, password);
 
@@ -37,15 +53,13 @@ public class Master {
 
         clientHandler.setFreezeMain(new CountDownLatch(serverConnection.getServers().size()));
 
-
         long startTimer = System.currentTimeMillis();
         long globalStartTimer = startTimer;
 
-        Splitter splitter = new Splitter("../source_file/source.txt", "../splitted_files/", serverConnection.getServers(), ftpPort, username, password);
+        Splitter splitter = new Splitter(sourceFile, "../splitted_files/", serverConnection.getServers(), ftpPort,
+                username, password);
         splitter.splitFile();
         splitter.distributeFiles();
-
-        
 
         System.out.println("All files have been distributed, waiting for all servers to receive the files");
 
@@ -149,17 +163,18 @@ public class Master {
         synchronizationTime += System.currentTimeMillis() - startTimer;
         long globalEndTimer = System.currentTimeMillis() - globalStartTimer;
 
-        printLog(globalEndTimer, synchronizationTime, computationTime);
+        File file = new File(sourceFile);
+        printLog(globalEndTimer, synchronizationTime, computationTime, mesureOutput, serverConnection.getServers().size(), file.length());
 
         clientHandler.sendMessageToAll("End");
-    
+
         System.exit(0);
     }
 
     private static Pair<Integer, Integer> getGlobalMinMax(List<Pair<Integer, Integer>> ranges) {
         int globalMin = Integer.MAX_VALUE;
         int globalMax = Integer.MIN_VALUE;
-        
+
         for (Pair<Integer, Integer> pair : ranges) {
             if (pair.getKey() < globalMin) {
                 globalMin = pair.getKey();
@@ -172,7 +187,15 @@ public class Master {
         return new Pair<>(globalMin, globalMax);
     }
 
-    private static void printLog(long globalEndTimer, long synchronizationTime, long computationTime) {
+    private static void printLog(long globalEndTimer, long synchronizationTime, long computationTime, String outputFilePath, int nb_machines, long size_input) {
+        String line = String.valueOf(nb_machines) + "," + String.valueOf(size_input) + "," + String.valueOf(globalEndTimer) + "," + String.valueOf(synchronizationTime) + "," + String.valueOf(computationTime);
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputFilePath, true))) {
+            writer.write(line);
+            writer.newLine();
+        } catch (IOException e) {
+            System.err.println("Error appending to file: " + e.getMessage());
+        }
+
         System.out.println("Global time: " + globalEndTimer + " ms");
         System.out.println("Synchronization time: " + synchronizationTime + " ms");
         System.out.println("Computation time: " + computationTime + " ms");

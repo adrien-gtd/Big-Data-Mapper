@@ -8,3 +8,5 @@ myftpclient/target/*
 logs.txt
 
 config.txt
+
+source_file/*
