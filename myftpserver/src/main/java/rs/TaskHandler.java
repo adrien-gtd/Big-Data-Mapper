@@ -14,6 +14,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -256,14 +257,12 @@ public class TaskHandler {
         int min = globalMinMax.getKey();
         int max = globalMinMax.getValue();
         int n = servers.size();
-        int range = (max - min + 1) / n;
+
+        double[] logPartion = calculateLogarithmicPartitions(min, max, n, 8.0);
 
         try {
             for (Entry<String, Integer> pair : wordOccurrences.entrySet()) {
-                int index = (pair.getValue() - min) / range;
-                if (index >= n) {
-                    index = n - 1; // Ensure the last bucket includes the upper boundary values
-                }
+                int index = findSegmentIndex(pair.getValue(), logPartion);
                 reducedFiles.get(index).write(pair.getKey() + " " + pair.getValue());
                 reducedFiles.get(index).newLine();
             }
@@ -323,6 +322,32 @@ public class TaskHandler {
                 }
             }
         }
+    }
+
+    public static double[] calculateLogarithmicPartitions(double min, double max, int numPartitions, double base) {
+        // Initialize array to store partition points
+        double[] partitionPoints = new double[numPartitions + 1];
+
+        // Calculate the logarithmic intervals
+        for (int i = 0; i <= numPartitions; i++) {
+            double exponent = i / (double) numPartitions;
+            double partitionPoint = min * Math.pow(base, exponent + (Math.log10(max/min) * (i / (double) numPartitions)));
+            partitionPoints[i] = partitionPoint;
+        }
+
+        return partitionPoints;
+    }
+
+    public static int findSegmentIndex(double x, double[] partitionPoints) {
+        // Using binary search to find the insertion point
+        int index = Arrays.binarySearch(partitionPoints, x);
+        
+        // Arrays.binarySearch returns the index of the search key, if it is contained in the array;
+        // otherwise, (-(insertion point) - 1). We convert it to the segment index.
+        if (index < 0) {
+            index = -index - 1;  // Get the insertion point
+        }
+        return index - 1;
     }
 
     public void processFileReduced(Path filePath, Map<String, Integer> wordOccurrences) throws IOException {    // Very similar to processFileShuffle but no need to update the wordOccurrences map
