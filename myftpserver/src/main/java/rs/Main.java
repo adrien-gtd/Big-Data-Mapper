@@ -59,7 +59,7 @@ public class Main {
     }
 
     public void startShuffle() {
-        taskHandler.startMapping("input.txt");
+        taskHandler.startMapping("input.txt", this);
         socketServer.sendMessageToClient("Shuffle done");
     }
 
@@ -102,5 +102,9 @@ public class Main {
         ftpServer.stop();
         socketServer.stop();
         System.exit(0);
+    }
+
+    public void endMapping() {
+        socketServer.sendMessageToClient("Mapping done");
     }
 }

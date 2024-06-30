@@ -1,0 +1,18 @@
+All servers have been initialized
+Servers:
+Removing files from../splitted_files/
+Removing files from../splitted_files/
+All files have been distributed, waiting for all servers to receive the files
+All servers have received the files, starting the map+shuffle phase
+Map phase started, waiting for all servers to finish
+All servers finished mapping, starting the shuffle phase
+All servers finished shuffling, starting the reduce phase
+Reduce phase started, waiting for all servers to finish
+All servers finished reducing, starting the merge phase
+Merge phase started, waiting for all servers to finish
+All servers finished merging, starting the sorting phase
+Sort phase started, waiting for all servers to finish
+All servers finished sorting, retriving outputs and ending the program
+Global time: 10 ms
+Synchronization time: 10 ms
+Computation time: 0 ms

@@ -50,7 +50,7 @@ public class TaskHandler {
         }
     }
 
-    public void startMapping(String inputFile) {
+    public void startMapping(String inputFile, Main main) {
         File file = new File(inputFile);
         String hostname;
         try {
@@ -91,6 +91,7 @@ public class TaskHandler {
                     processWord(word, shuffleFiles);
                 }
             }
+            main.endMapping();
             for (BufferedWriter writer : shuffleFiles) {
                 writer.flush();
                 writer.close();

@@ -76,6 +76,8 @@ public class ClientHandler implements Runnable {
             freezeMain.countDown();
         } else if (request.equals("End")) {
             closeSocket(socket);
+        } else if (request.equals("Mapping done")) {
+            freezeMain.countDown();
         } else {
             System.out.println("Unknown request: " + request);
         }
