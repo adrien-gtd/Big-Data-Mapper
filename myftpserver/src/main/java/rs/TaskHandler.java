@@ -258,14 +258,16 @@ public class TaskHandler {
         int max = globalMinMax.getValue();
         int n = servers.size();
 
-        double[] logPartion = calculateLogarithmicPartitions(min, max, n, 10.0);
+        double[] logPartion = calculateLogarithmicPartitions(min, max, n, 8.0);
 
         try {
             for (Entry<String, Integer> pair : wordOccurrences.entrySet()) {
                 int index = findSegmentIndex(pair.getValue(), logPartion);
                 if (index == -1) {
                     index = 0;
-                }
+                } else if (index >= n) {
+			index = n-1;
+		}
                 reducedFiles.get(index).write(pair.getKey() + " " + pair.getValue());
                 reducedFiles.get(index).newLine();
             }

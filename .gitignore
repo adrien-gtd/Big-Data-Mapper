@@ -3,6 +3,8 @@
 myftpserver/target/
 myftpclient/target/*
 
+myftpclient/output/*
+
 .vscode/
 
 logs.txt
