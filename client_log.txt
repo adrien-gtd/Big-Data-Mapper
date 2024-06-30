@@ -1,0 +1,10 @@
+1
+All servers have been initialized
+Servers:
+Server: tp-m6-09
+Server: tp-m6-10
+Removing files from../splitted_files/
+All files in directory deleted successfully.
+Removing files from../splitted_files/
+All files in directory deleted successfully.
+All files have been distributed, waiting for all servers to receive the files

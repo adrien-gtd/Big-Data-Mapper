@@ -16,17 +16,14 @@ public class Master {
         String password = "tata";
         long synchronizationTime = 0;
         long computationTime = 0;
-        String sourceFile;
-        String mesureOutput;
+        String sourceFile = "../source_file/source.txt";
+        String mesureOutput = "data.csv";
 
         if (args.length == 1)
             sourceFile = args[0];
-        if (args.length == 2) {
+        else if (args.length == 2) {
             sourceFile = args[0];
             mesureOutput = args[1];
-        } else {
-            sourceFile = "../source_file/source.txt";
-            mesureOutput = "data.csv";
         }
 
         ServerConnection serverConnection = new ServerConnection(ftpPort, socketPort, username, password);
