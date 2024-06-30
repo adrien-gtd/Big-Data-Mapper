@@ -17,7 +17,7 @@ public class Master {
         long synchronizationTime = 0;
         long computationTime = 0;
         String sourceFile = "../source_file/source.txt";
-        String mesureOutput = "data.csv";
+        String mesureOutput = "../data.csv";
 
         if (args.length == 1)
             sourceFile = args[0];

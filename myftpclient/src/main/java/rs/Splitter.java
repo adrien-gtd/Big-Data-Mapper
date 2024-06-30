@@ -38,7 +38,7 @@ public class Splitter {
         try {
             System.out.println("Removing files from" + targetDir);
             Files.list(Paths.get(targetDir))
-                .filter(Files::isRegularFile) // Filter only regular files (not directories)
+                .filter(file -> Files.isRegularFile(file) && !file.getFileName().toString().equals(".gitkeep")) // Filter only regular files (not directories)
                 .forEach(file -> {
                     try {
                         Files.delete(file); // Delete each file

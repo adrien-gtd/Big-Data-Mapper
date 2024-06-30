@@ -6,6 +6,7 @@ myftpclient/target/*
 .vscode/
 
 logs.txt
+client_log.txt
 
 config.txt
 
