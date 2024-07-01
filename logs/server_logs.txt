@@ -1,0 +1,89 @@
+========== Iteration: 1 for file: ../source_file/ma_source most recent computer added tp-m6-08 ==========
+File created: users.properties
+FTP Server started on port 5002
+Server is waiting to accept user...
+Accepted a client!
+Waiting for input file...
+[ WARN] 2024-07-01 02:09:07,663 [aguittard-22] [137.194.125.93] Releasing unreserved passive port: 45763
+[ WARN] 2024-07-01 02:09:07,721 [aguittard-22] [137.194.125.93] Releasing unreserved passive port: 34083
+Input file uploaded: input.txt
+[ WARN] 2024-07-01 02:09:07,773 [aguittard-22] [137.194.125.93] Releasing unreserved passive port: 33487
+Nodes file uploaded: nodes.txt
+Input file received, waiting to start shuffle...
+Request received: Start shuffle
+Request received: Start reduce
+Processing file: ./shuffle_files/shuffle_local.txt
+Unknown directory path: ./shuffle_files
+Reduce done, waiting for global min/max...
+Request received: Start merge, maxRange = 6 60
+Global min/max received, starting reduce phase...
+Merge done, waiting to start merging phase...
+Request received: Start sort
+Sort done, waiting answer from client to shutdown...
+[ WARN] 2024-07-01 02:09:07,954 [aguittard-22] [137.194.125.93] Releasing unreserved passive port: 34751
+End of the process
+============================== End of iteration ==============================
+
+
+========== Iteration: 1 for file: ../source_file/ma_source most recent computer added tp-m6-10 ==========
+File created: users.properties
+FTP Server started on port 5002
+Server is waiting to accept user...
+File created: users.properties
+FTP Server started on port 5002
+Server is waiting to accept user...
+Accepted a client!
+Waiting for input file...
+Accepted a client!
+Waiting for input file...
+[ WARN] 2024-07-01 02:09:22,609 [aguittard-22] [137.194.125.93] Releasing unreserved passive port: 36233
+[ WARN] 2024-07-01 02:09:22,672 [aguittard-22] [137.194.125.93] Releasing unreserved passive port: 36275
+Input file uploaded: input.txt
+[ WARN] 2024-07-01 02:09:22,715 [aguittard-22] [137.194.125.93] Releasing unreserved passive port: 46825
+Nodes file uploaded: nodes.txt
+Input file received, waiting to start shuffle...
+[ WARN] 2024-07-01 02:09:22,875 [aguittard-22] [137.194.125.93] Releasing unreserved passive port: 33565
+[ WARN] 2024-07-01 02:09:22,918 [aguittard-22] [137.194.125.93] Releasing unreserved passive port: 45597
+Input file uploaded: input.txt
+[ WARN] 2024-07-01 02:09:22,966 [aguittard-22] [137.194.125.93] Releasing unreserved passive port: 46317
+Nodes file uploaded: nodes.txt
+Input file received, waiting to start shuffle...
+Request received: Start shuffle
+Request received: Start shuffle
+[ WARN] 2024-07-01 02:09:23,027 [aguittard-22] [137.194.56.90] Releasing unreserved passive port: 42711
+[ WARN] 2024-07-01 02:09:23,029 [aguittard-22] [137.194.56.92] Releasing unreserved passive port: 33973
+[tp-m6-08]File uploaded successfully to client number [1/1]: tp-m6-10
+[tp-m6-10]File uploaded successfully to client number [1/1]: tp-m6-08
+Request received: Start reduce
+Request received: Start reduce
+Processing file: ./shuffle_files/shuffle_local.txt
+Processing file: ./shuffle_files/shuffle_local.txt
+Unknown directory path: ./shuffle_files
+Processing file: ./shuffle_files/shuffle_tp-m6-08_from_tp-m6-10.txt
+Unknown directory path: ./shuffle_files
+Reduce done, waiting for global min/max...
+Unknown directory path: ./shuffle_files
+Processing file: ./shuffle_files/shuffle_tp-m6-10_from_tp-m6-08.txt
+Unknown directory path: ./shuffle_files
+Reduce done, waiting for global min/max...
+Request received: Start merge, maxRange = 6 60
+Request received: Start merge, maxRange = 6 60
+Global min/max received, starting reduce phase...
+Global min/max received, starting reduce phase...
+[ WARN] 2024-07-01 02:09:23,131 [aguittard-22] [137.194.56.92] Releasing unreserved passive port: 45481
+[ WARN] 2024-07-01 02:09:23,134 [aguittard-22] [137.194.56.90] Releasing unreserved passive port: 45761
+[tp-m6-10]File uploaded successfully to client number [1/1]: tp-m6-08
+[tp-m6-08]File uploaded successfully to client number [1/1]: tp-m6-10
+Merge done, waiting to start merging phase...
+Merge done, waiting to start merging phase...
+Request received: Start sort
+Request received: Start sort
+Sort done, waiting answer from client to shutdown...
+Sort done, waiting answer from client to shutdown...
+[ WARN] 2024-07-01 02:09:23,274 [aguittard-22] [137.194.125.93] Releasing unreserved passive port: 33189
+[ WARN] 2024-07-01 02:09:23,366 [aguittard-22] [137.194.125.93] Releasing unreserved passive port: 43983
+End of the process
+End of the process
+============================== End of iteration ==============================
+
+
