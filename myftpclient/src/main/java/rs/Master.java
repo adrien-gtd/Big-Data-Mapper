@@ -75,7 +75,7 @@ public class Master {
 
         System.out.println("Map phase started, waiting for all servers to finish");
 
-        clientHandler.setFreezeMain(new CountDownLatch(serverConnection.getServers().size()));
+        clientHandler.setFreezeMain(new CountDownLatch(serverConnection.getServers().size() * 2));
 
         try {
             clientHandler.getFreezeMain().await();
@@ -88,8 +88,6 @@ public class Master {
         System.out.println("All servers finished mapping, starting the shuffle phase");
 
         startTimer = System.currentTimeMillis();
-
-        clientHandler.setFreezeMain(new CountDownLatch(serverConnection.getServers().size()));
 
         try {
             clientHandler.getFreezeMain().await();
