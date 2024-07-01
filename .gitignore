@@ -7,8 +7,8 @@ myftpclient/output/*
 
 .vscode/
 
-logs.txt
-client_log.txt
+logs/*
+
 
 config.txt
 

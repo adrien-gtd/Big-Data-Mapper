@@ -62,7 +62,7 @@ pids=()
 loop_computers=()
 
 # Number of times to loop
-numTimes=1
+numTimes=5
 
 # Empty the nodes file for the loop
 > $nodesFiles
